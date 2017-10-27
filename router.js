@@ -13,7 +13,8 @@ app.get('/', function (req, res) {
 
 app.post('/submit', function (req, res) {
     var code = req.body.source;
-    abi = compiler.compile(code, "Bounties");
+    var contract_name = req.body.name;
+    abi = compiler.compile(code, contract_name);
     res.end(abi);
 })
 

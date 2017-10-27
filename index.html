@@ -12,10 +12,11 @@ window.addEventListener('load', function() {
 
 function Action() {
     var code =  document.getElementById("input").value;
+    var contract_name  = document.getElementById("name").value;
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "http://localhost:8000/submit", true);
     xhttp.setRequestHeader("Content-type", "application/json");
-    var obj = {source: code};
+    var obj = {source: code, name: contract_name};
     xhttp.send(JSON.stringify(obj));
     xhttp.onreadystatechange = function() {
         if (xhttp.readyState == XMLHttpRequest.DONE) {
@@ -29,7 +30,7 @@ function deploy(abi) {
     var abiDefinition = abi_obj["abiDef"]; 
     var bytecode = abi_obj["bytecode"];
     var contract = web3.eth.contract(abiDefinition);
-    var deployedContract = contract.new({data: bytecode, from: web3.eth.coinbase, gas: 4700000}, function(err,res) {
+    var deployedContract = contract.new({data: bytecode, from: web3.eth.coinbase, gas: 470000}, function(err,res) {
         console.log(err);
     });
 }
@@ -37,7 +38,10 @@ function deploy(abi) {
 </head>
 <body>
     <form>
+        Source code:
         <input id="input" type="text">
+        Contract name:
+        <input id="name" type="text">
     </form>
     <button type="submit" onclick="Action()">Click</button>
 </body>
