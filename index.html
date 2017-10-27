@@ -3,28 +3,40 @@
 <script>
 window.addEventListener('load', function() {
     if (typeof web3 !== 'undefined') {
-        //startApp();
+        startApp();
     } else {
         console.log('No web3? You should consider trying MetaMask!')
         window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
     }
 })
+function startApp() {
+    document.getElementById("input").onchange = function(event) {
+        var file = document.getElementById("input").files[0];
+        var code;
+        if (file) {
+            var reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+                code = reader.result;
+                var contract_name  = document.getElementById("name").value;
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "http://localhost:8000/submit", true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                var obj = {source: code, name: contract_name};
+                xhttp.send(JSON.stringify(obj));
+                xhttp.onreadystatechange = function() {
+                    if (xhttp.readyState == XMLHttpRequest.DONE) {
+                        deploy(xhttp.responseText);
+                    }
+                }
+            }
+            reader.onerror = function (evt) {
+                console.log("Error reading file.");
+            }
 
-function Action() {
-    var code =  document.getElementById("input").value;
-    var contract_name  = document.getElementById("name").value;
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "http://localhost:8000/submit", true);
-    xhttp.setRequestHeader("Content-type", "application/json");
-    var obj = {source: code, name: contract_name};
-    xhttp.send(JSON.stringify(obj));
-    xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == XMLHttpRequest.DONE) {
-            deploy(xhttp.responseText);
         }
     }
 }
-
 function deploy(abi) {
     var abi_obj = JSON.parse(abi);
     var abiDefinition = abi_obj["abiDef"]; 
@@ -39,11 +51,10 @@ function deploy(abi) {
 <body>
     <form>
         Source code:
-        <input id="input" type="text">
+        <input id="input" type="file" accept=".sol">
         Contract name:
         <input id="name" type="text">
     </form>
-    <button type="submit" onclick="Action()">Click</button>
 </body>
 
 
