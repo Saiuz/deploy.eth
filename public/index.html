@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <!--
+      manifest.json provides metadata used when your web app is added to the
+      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+    <script>
+window.addEventListener('load', function() {
+    if (typeof web3 !== 'undefined') {
+        startApp();
+    } else {
+        console.log('No web3? You should consider trying MetaMask!')
+            window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+    }
+})
+function startApp() {
+    document.getElementById("input").onchange = function(event) {
+        var file = document.getElementById("input").files[0];
+        var code;
+        if (file) {
+            var reader = new FileReader();
+            reader.readAsText(file, "UTF-8");
+            reader.onload = function (evt) {
+                code = reader.result;
+                var contract_name  = document.getElementById("name").value;
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "http://localhost:3001/submit", true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                var obj = {source: code, name: contract_name};
+                xhttp.send(JSON.stringify(obj));
+                xhttp.onreadystatechange = function() {
+                    if (xhttp.readyState == XMLHttpRequest.DONE) {
+                        deploy(xhttp.responseText);
+                    }
+                }
+            }
+            reader.onerror = function (evt) {
+                console.log("Error reading file.");
+            }
+
+        }
+    }
+}
+function deploy(abi) {
+    var abi_obj = JSON.parse(abi);
+    var abiDefinition = abi_obj["abiDef"]; 
+    var bytecode = abi_obj["bytecode"];
+    var contract = web3.eth.contract(abiDefinition);
+    var deployedContract = contract.new({data: bytecode, from: web3.eth.coinbase, gas: 470000}, function(err,res) {
+        console.log(err);
+    });
+}
+
+    </script>
+  </head>
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
