@@ -14,7 +14,7 @@ class App extends Component {
                     <div id="mainContent">
                         <div id="upload-div" className="row">
                             <div className="col-sm-12" id="file-upload">
-                                <label for="input">
+                                <label htmlFor="input">
                                     <img src={uploadimg}/>
                                 </label>
                                 <input id="input" type="file" accept=".sol"/>
